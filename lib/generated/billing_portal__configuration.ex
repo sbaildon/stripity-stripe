@@ -15,11 +15,12 @@ defmodule Stripe.BillingPortal.Configuration do
       :livemode,
       :login_page,
       :metadata,
+      :name,
       :object,
       :updated
     ]
 
-    @typedoc "The `billing_portal.configuration` type.\n\n  * `active` Whether the configuration is active and can be used to create portal sessions.\n  * `application` ID of the Connect Application that created the configuration.\n  * `business_profile` \n  * `created` Time at which the object was created. Measured in seconds since the Unix epoch.\n  * `default_return_url` The default URL to redirect customers to when they click on the portal's link to return to your website. This can be [overriden](https://stripe.com/docs/api/customer_portal/sessions/create#create_portal_session-return_url) when creating the session.\n  * `features` \n  * `id` Unique identifier for the object.\n  * `is_default` Whether the configuration is the default. If `true`, this configuration can be managed in the Dashboard and portal sessions will use this configuration unless it is overriden when creating the session.\n  * `livemode` Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.\n  * `login_page` \n  * `metadata` Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object. This can be useful for storing additional information about the object in a structured format.\n  * `object` String representing the object's type. Objects of the same type share the same value.\n  * `updated` Time at which the object was last updated. Measured in seconds since the Unix epoch.\n"
+    @typedoc "The `billing_portal.configuration` type.\n\n  * `active` Whether the configuration is active and can be used to create portal sessions.\n  * `application` ID of the Connect Application that created the configuration.\n  * `business_profile` \n  * `created` Time at which the object was created. Measured in seconds since the Unix epoch.\n  * `default_return_url` The default URL to redirect customers to when they click on the portal's link to return to your website. This can be [overriden](https://stripe.com/docs/api/customer_portal/sessions/create#create_portal_session-return_url) when creating the session.\n  * `features` \n  * `id` Unique identifier for the object.\n  * `is_default` Whether the configuration is the default. If `true`, this configuration can be managed in the Dashboard and portal sessions will use this configuration unless it is overriden when creating the session.\n  * `livemode` Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.\n  * `login_page` \n  * `metadata` Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object. This can be useful for storing additional information about the object in a structured format.\n  * `name` The name of the configuration.\n  * `object` String representing the object's type. Objects of the same type share the same value.\n  * `updated` Time at which the object was last updated. Measured in seconds since the Unix epoch.\n"
     @type t :: %__MODULE__{
             active: boolean,
             application: (binary | term | term) | nil,
@@ -32,8 +33,18 @@ defmodule Stripe.BillingPortal.Configuration do
             livemode: boolean,
             login_page: term,
             metadata: term | nil,
+            name: binary | nil,
             object: binary,
             updated: integer
+          }
+  )
+
+  (
+    @typedoc "Control whether the quantity of the product can be adjusted."
+    @type adjustable_quantity :: %{
+            optional(:enabled) => boolean,
+            optional(:maximum) => integer,
+            optional(:minimum) => integer
           }
   )
 
@@ -66,6 +77,11 @@ defmodule Stripe.BillingPortal.Configuration do
   )
 
   (
+    @typedoc nil
+    @type conditions :: %{optional(:type) => :decreasing_item_amount | :shortening_interval}
+  )
+
+  (
     @typedoc "Information about updating the customer details in the portal."
     @type customer_update :: %{
             optional(:allowed_updates) =>
@@ -81,7 +97,6 @@ defmodule Stripe.BillingPortal.Configuration do
             optional(:invoice_history) => invoice_history,
             optional(:payment_method_update) => payment_method_update,
             optional(:subscription_cancel) => subscription_cancel,
-            optional(:subscription_pause) => subscription_pause,
             optional(:subscription_update) => subscription_update
           }
   )
@@ -103,7 +118,16 @@ defmodule Stripe.BillingPortal.Configuration do
 
   (
     @typedoc nil
-    @type products :: %{optional(:prices) => list(binary), optional(:product) => binary}
+    @type products :: %{
+            optional(:adjustable_quantity) => adjustable_quantity,
+            optional(:prices) => list(binary),
+            optional(:product) => binary
+          }
+  )
+
+  (
+    @typedoc "Setting to control when an update should be scheduled at the end of the period instead of applying immediately."
+    @type schedule_at_period_end :: %{optional(:conditions) => list(conditions)}
   )
 
   (
@@ -117,18 +141,14 @@ defmodule Stripe.BillingPortal.Configuration do
   )
 
   (
-    @typedoc "Information about pausing subscriptions in the portal."
-    @type subscription_pause :: %{optional(:enabled) => boolean}
-  )
-
-  (
     @typedoc "Information about updating subscriptions in the portal."
     @type subscription_update :: %{
             optional(:default_allowed_updates) =>
               list(:price | :promotion_code | :quantity) | binary,
             optional(:enabled) => boolean,
             optional(:products) => list(products) | binary,
-            optional(:proration_behavior) => :always_invoice | :create_prorations | :none
+            optional(:proration_behavior) => :always_invoice | :create_prorations | :none,
+            optional(:schedule_at_period_end) => schedule_at_period_end
           }
   )
 
@@ -159,90 +179,6 @@ defmodule Stripe.BillingPortal.Configuration do
         |> Stripe.Request.put_endpoint(path)
         |> Stripe.Request.put_params(params)
         |> Stripe.Request.put_method(:get)
-        |> Stripe.Request.make_request()
-      end
-    )
-  )
-
-  (
-    nil
-
-    @doc "<p>Creates a configuration that describes the functionality and behavior of a PortalSession</p>\n\n#### Details\n\n * Method: `post`\n * Path: `/v1/billing_portal/configurations`\n"
-    (
-      @spec create(
-              params :: %{
-                optional(:business_profile) => business_profile,
-                optional(:default_return_url) => binary | binary,
-                optional(:expand) => list(binary),
-                optional(:features) => features,
-                optional(:login_page) => login_page,
-                optional(:metadata) => %{optional(binary) => binary}
-              },
-              opts :: Keyword.t()
-            ) ::
-              {:ok, Stripe.BillingPortal.Configuration.t()}
-              | {:error, Stripe.ApiErrors.t()}
-              | {:error, term()}
-      def create(params \\ %{}, opts \\ []) do
-        path =
-          Stripe.OpenApi.Path.replace_path_params("/v1/billing_portal/configurations", [], [])
-
-        Stripe.Request.new_request(opts)
-        |> Stripe.Request.put_endpoint(path)
-        |> Stripe.Request.put_params(params)
-        |> Stripe.Request.put_method(:post)
-        |> Stripe.Request.make_request()
-      end
-    )
-  )
-
-  (
-    nil
-
-    @doc "<p>Updates a configuration that describes the functionality of the customer portal.</p>\n\n#### Details\n\n * Method: `post`\n * Path: `/v1/billing_portal/configurations/{configuration}`\n"
-    (
-      @spec update(
-              configuration :: binary(),
-              params :: %{
-                optional(:active) => boolean,
-                optional(:business_profile) => business_profile,
-                optional(:default_return_url) => binary | binary,
-                optional(:expand) => list(binary),
-                optional(:features) => features,
-                optional(:login_page) => login_page,
-                optional(:metadata) => %{optional(binary) => binary} | binary
-              },
-              opts :: Keyword.t()
-            ) ::
-              {:ok, Stripe.BillingPortal.Configuration.t()}
-              | {:error, Stripe.ApiErrors.t()}
-              | {:error, term()}
-      def update(configuration, params \\ %{}, opts \\ []) do
-        path =
-          Stripe.OpenApi.Path.replace_path_params(
-            "/v1/billing_portal/configurations/{configuration}",
-            [
-              %OpenApiGen.Blueprint.Parameter{
-                in: "path",
-                name: "configuration",
-                required: true,
-                schema: %OpenApiGen.Blueprint.Parameter.Schema{
-                  name: "configuration",
-                  title: nil,
-                  type: "string",
-                  items: [],
-                  properties: [],
-                  any_of: []
-                }
-              }
-            ],
-            [configuration]
-          )
-
-        Stripe.Request.new_request(opts)
-        |> Stripe.Request.put_endpoint(path)
-        |> Stripe.Request.put_params(params)
-        |> Stripe.Request.put_method(:post)
         |> Stripe.Request.make_request()
       end
     )
@@ -287,6 +223,92 @@ defmodule Stripe.BillingPortal.Configuration do
         |> Stripe.Request.put_endpoint(path)
         |> Stripe.Request.put_params(params)
         |> Stripe.Request.put_method(:get)
+        |> Stripe.Request.make_request()
+      end
+    )
+  )
+
+  (
+    nil
+
+    @doc "<p>Creates a configuration that describes the functionality and behavior of a PortalSession</p>\n\n#### Details\n\n * Method: `post`\n * Path: `/v1/billing_portal/configurations`\n"
+    (
+      @spec create(
+              params :: %{
+                optional(:business_profile) => business_profile,
+                optional(:default_return_url) => binary | binary,
+                optional(:expand) => list(binary),
+                optional(:features) => features,
+                optional(:login_page) => login_page,
+                optional(:metadata) => %{optional(binary) => binary},
+                optional(:name) => binary | binary
+              },
+              opts :: Keyword.t()
+            ) ::
+              {:ok, Stripe.BillingPortal.Configuration.t()}
+              | {:error, Stripe.ApiErrors.t()}
+              | {:error, term()}
+      def create(params \\ %{}, opts \\ []) do
+        path =
+          Stripe.OpenApi.Path.replace_path_params("/v1/billing_portal/configurations", [], [])
+
+        Stripe.Request.new_request(opts)
+        |> Stripe.Request.put_endpoint(path)
+        |> Stripe.Request.put_params(params)
+        |> Stripe.Request.put_method(:post)
+        |> Stripe.Request.make_request()
+      end
+    )
+  )
+
+  (
+    nil
+
+    @doc "<p>Updates a configuration that describes the functionality of the customer portal.</p>\n\n#### Details\n\n * Method: `post`\n * Path: `/v1/billing_portal/configurations/{configuration}`\n"
+    (
+      @spec update(
+              configuration :: binary(),
+              params :: %{
+                optional(:active) => boolean,
+                optional(:business_profile) => business_profile,
+                optional(:default_return_url) => binary | binary,
+                optional(:expand) => list(binary),
+                optional(:features) => features,
+                optional(:login_page) => login_page,
+                optional(:metadata) => %{optional(binary) => binary} | binary,
+                optional(:name) => binary | binary
+              },
+              opts :: Keyword.t()
+            ) ::
+              {:ok, Stripe.BillingPortal.Configuration.t()}
+              | {:error, Stripe.ApiErrors.t()}
+              | {:error, term()}
+      def update(configuration, params \\ %{}, opts \\ []) do
+        path =
+          Stripe.OpenApi.Path.replace_path_params(
+            "/v1/billing_portal/configurations/{configuration}",
+            [
+              %OpenApiGen.Blueprint.Parameter{
+                in: "path",
+                name: "configuration",
+                required: true,
+                schema: %OpenApiGen.Blueprint.Parameter.Schema{
+                  name: "configuration",
+                  title: nil,
+                  type: "string",
+                  items: [],
+                  properties: [],
+                  any_of: []
+                }
+              }
+            ],
+            [configuration]
+          )
+
+        Stripe.Request.new_request(opts)
+        |> Stripe.Request.put_endpoint(path)
+        |> Stripe.Request.put_params(params)
+        |> Stripe.Request.put_method(:post)
         |> Stripe.Request.make_request()
       end
     )

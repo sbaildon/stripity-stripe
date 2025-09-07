@@ -63,12 +63,15 @@ defmodule Stripe.File do
                   | :dispute_evidence
                   | :document_provider_identity_document
                   | :finance_report_run
+                  | :financial_account_statement
                   | :identity_document
                   | :identity_document_downloadable
+                  | :issuing_regulatory_reporting
                   | :pci_document
                   | :selfie
                   | :sigma_scheduled_query
                   | :tax_document_user_upload
+                  | :terminal_android_apk
                   | :terminal_reader_splashscreen,
                 optional(:starting_after) => binary
               },

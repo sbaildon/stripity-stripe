@@ -90,6 +90,7 @@ defmodule Stripe.Price do
     @typedoc nil
     @type recurring :: %{
             optional(:interval) => :day | :month | :week | :year,
+            optional(:meter) => binary,
             optional(:usage_type) => :licensed | :metered
           }
   )
@@ -111,35 +112,6 @@ defmodule Stripe.Price do
             optional(:divide_by) => integer,
             optional(:round) => :down | :up
           }
-  )
-
-  (
-    nil
-
-    @doc "<p>Search for prices you’ve previously created using Stripe’s <a href=\"/docs/search#search-query-language\">Search Query Language</a>.\nDon’t use search in read-after-write flows where strict consistency is necessary. Under normal operating\nconditions, data is searchable in less than a minute. Occasionally, propagation of new or updated data can be up\nto an hour behind during outages. Search functionality is not available to merchants in India.</p>\n\n#### Details\n\n * Method: `get`\n * Path: `/v1/prices/search`\n"
-    (
-      @spec search(
-              params :: %{
-                optional(:expand) => list(binary),
-                optional(:limit) => integer,
-                optional(:page) => binary,
-                optional(:query) => binary
-              },
-              opts :: Keyword.t()
-            ) ::
-              {:ok, Stripe.SearchResult.t(Stripe.Price.t())}
-              | {:error, Stripe.ApiErrors.t()}
-              | {:error, term()}
-      def search(params \\ %{}, opts \\ []) do
-        path = Stripe.OpenApi.Path.replace_path_params("/v1/prices/search", [], [])
-
-        Stripe.Request.new_request(opts)
-        |> Stripe.Request.put_endpoint(path)
-        |> Stripe.Request.put_params(params)
-        |> Stripe.Request.put_method(:get)
-        |> Stripe.Request.make_request()
-      end
-    )
   )
 
   (
@@ -181,47 +153,6 @@ defmodule Stripe.Price do
   (
     nil
 
-    @doc "<p>Creates a new price for an existing product. The price can be recurring or one-time.</p>\n\n#### Details\n\n * Method: `post`\n * Path: `/v1/prices`\n"
-    (
-      @spec create(
-              params :: %{
-                optional(:active) => boolean,
-                optional(:billing_scheme) => :per_unit | :tiered,
-                optional(:currency) => binary,
-                optional(:currency_options) => map(),
-                optional(:custom_unit_amount) => custom_unit_amount,
-                optional(:expand) => list(binary),
-                optional(:lookup_key) => binary,
-                optional(:metadata) => %{optional(binary) => binary},
-                optional(:nickname) => binary,
-                optional(:product) => binary,
-                optional(:product_data) => product_data,
-                optional(:recurring) => recurring,
-                optional(:tax_behavior) => :exclusive | :inclusive | :unspecified,
-                optional(:tiers) => list(tiers),
-                optional(:tiers_mode) => :graduated | :volume,
-                optional(:transfer_lookup_key) => boolean,
-                optional(:transform_quantity) => transform_quantity,
-                optional(:unit_amount) => integer,
-                optional(:unit_amount_decimal) => binary
-              },
-              opts :: Keyword.t()
-            ) :: {:ok, Stripe.Price.t()} | {:error, Stripe.ApiErrors.t()} | {:error, term()}
-      def create(params \\ %{}, opts \\ []) do
-        path = Stripe.OpenApi.Path.replace_path_params("/v1/prices", [], [])
-
-        Stripe.Request.new_request(opts)
-        |> Stripe.Request.put_endpoint(path)
-        |> Stripe.Request.put_params(params)
-        |> Stripe.Request.put_method(:post)
-        |> Stripe.Request.make_request()
-      end
-    )
-  )
-
-  (
-    nil
-
     @doc "<p>Retrieves the price with the given ID.</p>\n\n#### Details\n\n * Method: `get`\n * Path: `/v1/prices/{price}`\n"
     (
       @spec retrieve(
@@ -255,6 +186,76 @@ defmodule Stripe.Price do
         |> Stripe.Request.put_endpoint(path)
         |> Stripe.Request.put_params(params)
         |> Stripe.Request.put_method(:get)
+        |> Stripe.Request.make_request()
+      end
+    )
+  )
+
+  (
+    nil
+
+    @doc "<p>Search for prices you’ve previously created using Stripe’s <a href=\"/docs/search#search-query-language\">Search Query Language</a>.\nDon’t use search in read-after-write flows where strict consistency is necessary. Under normal operating\nconditions, data is searchable in less than a minute. Occasionally, propagation of new or updated data can be up\nto an hour behind during outages. Search functionality is not available to merchants in India.</p>\n\n#### Details\n\n * Method: `get`\n * Path: `/v1/prices/search`\n"
+    (
+      @spec search(
+              params :: %{
+                optional(:expand) => list(binary),
+                optional(:limit) => integer,
+                optional(:page) => binary,
+                optional(:query) => binary
+              },
+              opts :: Keyword.t()
+            ) ::
+              {:ok, Stripe.SearchResult.t(Stripe.Price.t())}
+              | {:error, Stripe.ApiErrors.t()}
+              | {:error, term()}
+      def search(params \\ %{}, opts \\ []) do
+        path = Stripe.OpenApi.Path.replace_path_params("/v1/prices/search", [], [])
+
+        Stripe.Request.new_request(opts)
+        |> Stripe.Request.put_endpoint(path)
+        |> Stripe.Request.put_params(params)
+        |> Stripe.Request.put_method(:get)
+        |> Stripe.Request.make_request()
+      end
+    )
+  )
+
+  (
+    nil
+
+    @doc "<p>Creates a new <a href=\"https://docs.stripe.com/api/prices\">Price</a> for an existing <a href=\"https://docs.stripe.com/api/products\">Product</a>. The Price can be recurring or one-time.</p>\n\n#### Details\n\n * Method: `post`\n * Path: `/v1/prices`\n"
+    (
+      @spec create(
+              params :: %{
+                optional(:active) => boolean,
+                optional(:billing_scheme) => :per_unit | :tiered,
+                optional(:currency) => binary,
+                optional(:currency_options) => map(),
+                optional(:custom_unit_amount) => custom_unit_amount,
+                optional(:expand) => list(binary),
+                optional(:lookup_key) => binary,
+                optional(:metadata) => %{optional(binary) => binary},
+                optional(:nickname) => binary,
+                optional(:product) => binary,
+                optional(:product_data) => product_data,
+                optional(:recurring) => recurring,
+                optional(:tax_behavior) => :exclusive | :inclusive | :unspecified,
+                optional(:tiers) => list(tiers),
+                optional(:tiers_mode) => :graduated | :volume,
+                optional(:transfer_lookup_key) => boolean,
+                optional(:transform_quantity) => transform_quantity,
+                optional(:unit_amount) => integer,
+                optional(:unit_amount_decimal) => binary
+              },
+              opts :: Keyword.t()
+            ) :: {:ok, Stripe.Price.t()} | {:error, Stripe.ApiErrors.t()} | {:error, term()}
+      def create(params \\ %{}, opts \\ []) do
+        path = Stripe.OpenApi.Path.replace_path_params("/v1/prices", [], [])
+
+        Stripe.Request.new_request(opts)
+        |> Stripe.Request.put_endpoint(path)
+        |> Stripe.Request.put_params(params)
+        |> Stripe.Request.put_method(:post)
         |> Stripe.Request.make_request()
       end
     )

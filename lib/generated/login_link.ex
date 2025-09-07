@@ -1,7 +1,7 @@
 defmodule Stripe.LoginLink do
   use Stripe.Entity
 
-  @moduledoc "Login Links are single-use login link for an Express account to access their Stripe dashboard."
+  @moduledoc "Login Links are single-use URLs that takes an Express account to the login page for their Stripe dashboard.\nA Login Link differs from an [Account Link](https://stripe.com/docs/api/account_links) in that it takes the user directly to their [Express dashboard for the specified account](https://stripe.com/docs/connect/integrate-express-dashboard#create-login-link)"
   (
     defstruct [:created, :object, :url]
 
@@ -12,7 +12,7 @@ defmodule Stripe.LoginLink do
   (
     nil
 
-    @doc "<p>Creates a single-use login link for an Express account to access their Stripe dashboard.</p>\n\n<p><strong>You may only create login links for <a href=\"/docs/connect/express-accounts\">Express accounts</a> connected to your platform</strong>.</p>\n\n#### Details\n\n * Method: `post`\n * Path: `/v1/accounts/{account}/login_links`\n"
+    @doc "<p>Creates a login link for a connected account to access the Express Dashboard.</p>\n\n<p><strong>You can only create login links for accounts that use the <a href=\"/connect/express-dashboard\">Express Dashboard</a> and are connected to your platform</strong>.</p>\n\n#### Details\n\n * Method: `post`\n * Path: `/v1/accounts/{account}/login_links`\n"
     (
       @spec create(
               account :: binary(),

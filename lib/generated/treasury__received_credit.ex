@@ -54,7 +54,8 @@ defmodule Stripe.Treasury.ReceivedCredit do
   (
     @typedoc nil
     @type linked_flows :: %{
-            optional(:source_flow_type) => :credit_reversal | :other | :outbound_payment | :payout
+            optional(:source_flow_type) =>
+              :credit_reversal | :other | :outbound_payment | :outbound_transfer | :payout
           }
   )
 

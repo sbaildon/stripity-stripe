@@ -14,7 +14,7 @@ defmodule Stripe.Capability do
       :status
     ]
 
-    @typedoc "The `capability` type.\n\n  * `account` The account for which the capability enables functionality.\n  * `future_requirements` \n  * `id` The identifier for the capability.\n  * `object` String representing the object's type. Objects of the same type share the same value.\n  * `requested` Whether the capability has been requested.\n  * `requested_at` Time at which the capability was requested. Measured in seconds since the Unix epoch.\n  * `requirements` \n  * `status` The status of the capability. Can be `active`, `inactive`, `pending`, or `unrequested`.\n"
+    @typedoc "The `capability` type.\n\n  * `account` The account for which the capability enables functionality.\n  * `future_requirements` \n  * `id` The identifier for the capability.\n  * `object` String representing the object's type. Objects of the same type share the same value.\n  * `requested` Whether the capability has been requested.\n  * `requested_at` Time at which the capability was requested. Measured in seconds since the Unix epoch.\n  * `requirements` \n  * `status` The status of the capability.\n"
     @type t :: %__MODULE__{
             account: binary | Stripe.Account.t(),
             future_requirements: term,
